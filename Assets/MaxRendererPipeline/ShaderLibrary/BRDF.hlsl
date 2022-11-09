@@ -44,6 +44,7 @@ float3 fresnelSchlick(float cosTheta, float3 F0)
 
 struct Surface
 {
+    float3 P;
     float3 L;
     float3 V;
     float3 N;
