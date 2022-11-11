@@ -40,13 +40,12 @@ v2f PBRVertex(a2v v)
 	v2f o;
 	o.pH = UnityObjectToClipPos(v.pO);
 	o.uv = v.uv;
+	o.uv = o.uv * _AlbedoMap_ST.xy + _AlbedoMap_ST.zw;
 	o.pW = mul(unity_ObjectToWorld, v.pO).xyz;
 
 	o.nW = TransformObjectToWorldNormal(v.nO);
 	o.tW = normalize(TransformObjectToWorld(v.tO.xyz));
 	o.bW = normalize(cross(o.nW, o.tW) * v.tO.w);
-
-	o.uv = o.uv * _AlbedoMap_ST.xy + _AlbedoMap_ST.zw;
 
 	return o;
 }

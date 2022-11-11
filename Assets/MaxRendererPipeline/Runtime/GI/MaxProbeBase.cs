@@ -3,21 +3,20 @@ using UnityEngine;
 
 namespace MaxSRP
 {
-    public class MaxReflectionProbe : MonoBehaviour
+    public class MaxProbeBase : MonoBehaviour
     {
+        public bool bUpdate = false;
+
         [SerializeField]
         public Cubemap GroundTruthCubemap;
         [SerializeField]
-        public Texture2D BRDFLUT;
+        protected Cubemap capturedCubemap;
 
-        [SerializeField]
-        private Cubemap cubemap;
-
-        const string destFolder = "Assets/Scenes/ReflectionProbeCubemaps";
+        protected const string destFolder = "Assets/Scenes/ProbeCubemaps";
 
         public void RenderCubeMap()
         {
-            cubemap = new Cubemap(64, TextureFormat.RGBA32, false);
+            capturedCubemap = new Cubemap(64, TextureFormat.RGBA32, false);
 
             /*Camera staticCam = new Camera
             {
@@ -28,20 +27,17 @@ namespace MaxSRP
             go.AddComponent<Camera>();
             go.transform.position = this.transform.position;
             go.transform.rotation = Quaternion.identity;
-            go.GetComponent<Camera>().RenderToCubemap(cubemap);
-
-            Debug.Log(cubemap.mipmapCount.ToString());
+            go.GetComponent<Camera>().RenderToCubemap(capturedCubemap);
 
             DestroyImmediate(go);
         }
         public void SaveCubeMap()
         {
-            if (cubemap == null)
+            if (capturedCubemap == null)
             {
                 Debug.LogError("先渲染Cubemap再保存！");
                 return;
             }
-
             SaveCubemapFace(CubemapFace.NegativeX, "right", "jpg", destFolder);
             SaveCubemapFace(CubemapFace.PositiveX, "left", "jpg", destFolder);
             SaveCubemapFace(CubemapFace.PositiveZ, "front", "jpg", destFolder);
@@ -49,33 +45,18 @@ namespace MaxSRP
             SaveCubemapFace(CubemapFace.PositiveY, "top", "jpg", destFolder);
             SaveCubemapFace(CubemapFace.NegativeY, "bottom", "jpg", destFolder);
         }
-
-        public void Init()
-        {
-            Shader.SetGlobalTexture("_BRDFLUT", BRDFLUT);
-
-            RenderCubeMap();
-            //SaveCubeMap();
-            SubmitReflectionMap();
-        }
-
-        public void SubmitReflectionMap()
-        {
-            Shader.SetGlobalTexture("_IBLSpec", cubemap);
-        }
-
         void SaveCubemapFace(CubemapFace face, string prefix, string type, string destFolder)
         {
-            int width = cubemap.width;
-            int height = cubemap.height;
-            Texture2D tex = new Texture2D(width, height, cubemap.format, 0, false);
+            int width = capturedCubemap.width;
+            int height = capturedCubemap.height;
+            Texture2D tex = new Texture2D(width, height, capturedCubemap.format, 0, false);
 
             // we need to flip our textures on Y before saving
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    tex.SetPixel(x, height - 1 - y, cubemap.GetPixel(face, x, y));
+                    tex.SetPixel(x, height - 1 - y, capturedCubemap.GetPixel(face, x, y));
                 }
             }
 
@@ -100,20 +81,19 @@ namespace MaxSRP
             }
         }
 
-        public void Clear()
+        public virtual bool ProbeUpdate()
         {
-            Destroy(cubemap);
+            return bUpdate;
         }
 
-        private void Start()
-        {
-            Init();
+        public virtual void ProbeInit()
+        { 
+            
         }
 
-        private void FixedUpdate()
+        public virtual void Clear()
         {
-            RenderCubeMap();
-            SubmitReflectionMap();
+            Destroy(capturedCubemap);
         }
     }
 }

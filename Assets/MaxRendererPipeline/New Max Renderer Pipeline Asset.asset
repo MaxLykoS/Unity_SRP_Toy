@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _srpBatcher: 0
   _shadowSetting:
-    _maxShadowDistance: 100
+    _maxShadowDistance: 50
     _shadowCascadeCount: 4
     _cascadeRatio1: 10
     _cascadeRatio2: 20
